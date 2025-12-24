@@ -328,7 +328,8 @@ class main():
         return dialect.delimiter
             
 if __name__ == '__main__':
-    with open(r'C:\Users\ACER\Documents\css\css_files.css') as f:
+    with open('configCss.css) as f:
         css = f.read()
     st.markdown(f'<style>{css}</style>', unsafe_allow_html=True) 
     main()
+
