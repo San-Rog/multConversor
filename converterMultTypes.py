@@ -300,7 +300,6 @@ class main():
                 st.session_state[disabled] = state
   
     def segregateFiles(self):
-        st.write(self.files)
         filesFind = {}        
         for upLoad in self.upLoad: 
             nameGlobal = upLoad.name
@@ -331,6 +330,7 @@ if __name__ == '__main__':
         css = f.read()
     st.markdown(f'<style>{css}</style>', unsafe_allow_html=True) 
     main()
+
 
 
 
