@@ -1,6 +1,7 @@
 streamlit==1.52.2
 pandas==2.3.3
 openpyxl==3.1.5
+docx==1.0.0
 
 
 
