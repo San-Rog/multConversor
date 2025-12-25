@@ -314,7 +314,7 @@ class main():
                                         objDown = downFiles(self.filesReadDf, None, None, self.ext, None)
                                         objDown.csvPd()    
                                 if any(allButts):
-                                    self.place.write(''
+                                    self.place.write('')
                             if self.upLoad:
                                 if any(allButts):
                                     ind = allButts.index(True)
@@ -410,6 +410,7 @@ if __name__ == '__main__':
         css = f.read()
     st.markdown(f'<style>{css}</style>', unsafe_allow_html=True) 
     main()
+
 
 
 
