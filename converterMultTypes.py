@@ -23,18 +23,29 @@ class messages():
             self.fileFinal = f'zipado_múltiplos_{self.suffix}.zip'
         if None not in args:
             self.mensResult()
+        st.write('em mensagens')
     
     def mensResult(self):
-        colMens, colZip = st.columns([16, 5], width='stretch', vertical_alignment='center')
-        colMens.success(f':blue[**{self.fileFinal}**] com ***{self.nFiles}*** arquivo(s). Clique no botão 👉.', 
-                        icon='✔️')                              
+        if self.nFiles <= 1:
+            exprFile = ['arquivo', 'abri-lo']
+        else:
+            exprFile = ['arquivos', 'abri-los']
+        if self.suffix in ['tsv']:
+            mensStr = f':blue[**{self.fileFinal}**] contendo ***{self.nFiles}*** {exprFile[0]}. Clique no botão 👉.\n' \
+                      f'(Use **Bloco de Notas** ou aplicativo similar para {exprFile[1]}.)'
+        else:
+            mensStr = f':blue[**{self.fileFinal}**] com ***{self.nFiles}*** {exprFile[0]}. Clique no botão 👉.'
+        colMens, colZip = st.columns([17, 5], width='stretch', vertical_alignment='center')
+        colMens.success(mensStr, icon='✔️')                              
         with open(self.fileTmp, "rb") as file:
-            colZip.download_button(label='Download',
+            buttDown = colZip.download_button(label='Download',
                                    data=file,
                                    file_name=self.fileFinal,
                                    mime='application/zip', 
                                    icon=':material/download:', 
                                    use_container_width=True)
+        if buttDown: 
+            st.rerun()
     
     @st.dialog(' ')
     def configTwo(self, str):
@@ -53,14 +64,16 @@ class downFiles():
             if self.index in [0, 1]:
                 self.csvXlsx() 
             elif self.index == 2:
-                self.ext = 'txt'
                 self.csvTsv()
         elif self.index == 3:
             self.csvDocx()     
-        self.nameZip = f'arquivo_all_{self.ext}.zip'
-        self.downZip()
-        if os.path.getsize(self.nameZip) > 0:
-            messages(self.nameZip, self.ext, self.nFiles)
+        st.write('aqui')
+        if self.opt is not None:
+            st.write('agora aqui')
+            self.nameZip = f'arquivo_all_{self.ext}.zip'
+            self.downZip()
+            if os.path.getsize(self.nameZip) > 0:
+                messages(self.nameZip, self.ext, self.nFiles)
             
     def csvXlsx(self):
         for f, file in enumerate(self.files):
@@ -88,10 +101,20 @@ class downFiles():
             self.nameFile = file[0]
             self.dataFile = file[1]
             self.fileOut = f'{self.nameFile}_new.csv'
-            self.csvCsv()
+            self.csvCsv(0)
             self.bytesFiles(1)
-            
-    def csvCsv(self):
+               
+    def csvPd(self):
+        file = self.files[0]
+        self.nameFile = file[0]
+        self.dataFile = file[1]
+        self.fileOut = self.nameFile
+        self.csvCsv(1)
+        self.df = pd.read_csv(self.fileOut).fillna('')
+        self.renameHead()
+        st.dataframe(self.df)
+    
+    def csvCsv(self, mode):
         allLines = []
         for data in self.dataFile:
             try:
@@ -102,13 +125,15 @@ class downFiles():
         with open(self.fileOut, 'w', newline='', encoding='utf-8') as recordCsv:
             writerCsv = csv.writer(recordCsv)
             writerCsv.writerows(allLines)
+        if mode == 1:
+            return self.fileOut
     
     def csvDocx(self):
         for f, file in enumerate(self.files):
             self.nameFile = file[0]
             self.dataFile = file[1]
             self.fileOut = f'{self.nameFile}_new.csv'
-            self.csvCsv()
+            self.csvCsv(0)
             doc = Document()
             with open(self.fileOut, 'r', encoding='utf-8') as f:
                 csv_reader = csv.reader(f)
@@ -163,7 +188,7 @@ class downFiles():
             output = BytesIO()
             self.df.to_csv(output, sep='\t', index=False)
             csvBytes = output.getvalue()
-            self.fileOut = f'{self.nameFile}.txt'
+            self.fileOut = f'{self.nameFile}.{self.ext}'
             zips = (self.fileOut, csvBytes)
             self.filesZip.append(zips) 
             self.nFiles += 1
@@ -195,81 +220,109 @@ class downFiles():
 class main():
     def __init__(self):          
         st.set_page_config(initial_sidebar_state="collapsed", layout="wide")
-        self.typeExt = sorted(['CSV', 'XLS', 'XLSX'])   
+        self.typeExt = sorted(['CSV', 'XLS', 'XLSX']) 
         colType, colUpload = st.columns([12, 17], width='stretch')
-        self.uploads = ['upLoad']
+        self.keyUp = 'zero'
         with colType:            
             with st.container(border=4, key='contType', gap='small', height="stretch"):
                 self.typeFile = st.selectbox('Selecione o tipo de arquivo', self.typeExt, key='typeFile') 
                 self.upLoad = st.file_uploader(f'Escolha dois ou mais arquivos {self.typeFile}.', 
-                                               type=self.typeFile, accept_multiple_files=True, key=self.uploads[0])    
+                                               type=self.typeFile, accept_multiple_files=True, key=self.keyUp)    
         with colUpload:  
             try:
                 self.files = list(set([file.name for file in self.upLoad]))
             except:
                 self.files = [] 
             if not self.typeFile:
-                with st.container(border=4, key='contZero', gap='small', height="stretch"):
-                    st.text("")
+                self.configImageEmpty()
             if self.typeFile:
                 with st.container(border=None, key='contUpload', gap='small', height="stretch"):
                     nUploads = len(self.upLoad)
                     self.disableds = ['disabled' + str(w) for w in range(6)]
                     if nUploads == 0:
-                        self.setSessionState(True, 0)
+                        self.setSessionState(True)
                     else:
-                        self.setSessionState(False, 0)
+                        self.setSessionState(False)
                     if not self.typeFile:
-                        with st.container(border=4, key='contOne', gap='small', height="stretch"):
-                            st.text('')                            
+                        self.configImageEmpty()                           
                     else:
                         if not self.typeFile == self.typeExt[0]: 
-                            with st.container(border=4, key='contOne', gap='small', height="stretch"):
-                                st.text('')
+                            self.configImageEmpty()
                         else:
                             self.exts = {'openpyxl': ['xls', 'xlsx', 'html'], 
                                          'odf': ['ods'], 
                                          'tsv': ['tsv'], 
                                          'doc': ['docx']}                        
-                            stripe = f':red[**{self.typeExt[1].lower()}**]'
+                            self.newTypes = []
+                            self.segregateTypes()
+                            typeLow = self.typeFile.lower()
+                            strFunc = ['Converter um ou mais arquivos', 'Convertendo']
+                            stripe = f':red[**{self.typeFile.lower()}**]'
                             with st.container(border=4, key='contOne', gap='small', height="stretch"):
                                 nFiles = len(self.files)
-                                if nFiles <= 1:
-                                    titleSel = f'Arquivo sem duplicação ({nFiles})'
+                                if nFiles <= 0:
+                                    titleSel = f'Arquivo selecionado ({nFiles})'
                                 else:
-                                    titleSel = f'Arquivos sem duplicação ({nFiles})'
-                                self.fileSel = st.selectbox(titleSel, options=self.files, key='files')
+                                    titleSel = f'Arquivos selecionados ({nFiles})'
+                                if nFiles > 0:
+                                    opts = sorted(self.files)
+                                    opts.insert(0, '')
+                                else:
+                                    opts = []
+                                self.fileSel = st.selectbox(titleSel, options=opts, key='files', 
+                                                            index=0)
                                 colOne, colTwo, colThree = st.columns(spec=3, width='stretch')
-                                buttOne = colOne.button(label=f'{stripe} para xls', key='buttOne',
+                                buttOne = colOne.button(label=f'{stripe} para {self.newTypes[0]}', key='buttOne',
                                                         use_container_width=True, 
                                                         icon=':material/sync_alt:', 
-                                                        disabled=st.session_state[self.disableds[0]]) 
-                                buttTwo = colTwo.button(label=f'{stripe} para xlsx', key='buttTwo',
+                                                        disabled=st.session_state[self.disableds[0]],
+                                                        help=f'{strFunc[0]} {stripe} para {self.newTypes[0]}.') 
+                                buttTwo = colTwo.button(label=f'{stripe} para {self.newTypes[1]}', key='buttTwo',
                                                         use_container_width=True, 
                                                         icon=':material/swap_horiz:', 
-                                                        disabled=st.session_state[self.disableds[1]])
-                                buttThree = colThree.button(label=f'{stripe} para html', key='buttThree',
+                                                        disabled=st.session_state[self.disableds[1]], 
+                                                        help=f'{strFunc[0]} {stripe} para {self.newTypes[1]}.')
+                                buttThree = colThree.button(label=f'{stripe} para {self.newTypes[2]}', key='buttThree',
                                                         use_container_width=True, 
                                                         icon=':material/table_convert:', 
-                                                        disabled=st.session_state[self.disableds[3]]) 
+                                                        disabled=st.session_state[self.disableds[2]], 
+                                                        help=f'{strFunc[0]} {stripe} para {self.newTypes[2]}.') 
                                 colFour, colFive, colSix = st.columns(spec=3, width='stretch')
-                                buttFour = colFour.button(label=f'{stripe} para ods', key='buttFour',
+                                buttFour = colFour.button(label=f'{stripe} para {self.newTypes[3]}', key='buttFour',
                                                         use_container_width=True, 
                                                         icon=':material/transform:', 
-                                                        disabled=st.session_state[self.disableds[3]]) 
-                                buttFive = colFive.button(label=f'{stripe} para txt', key='buttFive',
+                                                        disabled=st.session_state[self.disableds[3]], 
+                                                        help=f'{strFunc[0]} {stripe} para {self.newTypes[3]}.') 
+                                buttFive = colFive.button(label=f'{stripe} para {self.newTypes[4]}', key='buttFive',
                                                         use_container_width=True, 
                                                         icon=':material/convert_to_text:', 
-                                                        disabled=st.session_state[self.disableds[4]])
-                                buttSix = colSix.button(label=f'{stripe} para docx', key='buttSix',
+                                                        disabled=st.session_state[self.disableds[4]], 
+                                                        help=f'{strFunc[0]} {stripe} para {self.newTypes[4]}.')
+                                buttSix = colSix.button(label=f'{stripe} para {self.newTypes[5]}', key='buttSix',
                                                         use_container_width=True, 
                                                         icon=':material/convert_to_text:', 
-                                                        disabled=st.session_state[self.disableds[5]])
-                            if self.upLoad:  
-                                if any([buttOne, buttTwo, buttThree, buttFour, buttFive, buttSix]):
+                                                        disabled=st.session_state[self.disableds[5]], 
+                                                        help=f'{strFunc[0]} {stripe} para {self.newTypes[5]}.')
+                                self.place = st.empty()
+                                allButts = [buttOne, buttTwo, buttThree, buttFour, buttFive, buttSix]
+                                if self.fileSel:
+                                    self.place.write('')
+                                    with st.spinner('Aguarde a exibição do arquivo na tela...'):
+                                        nameFile = self.fileSel
+                                        allNames = [file.name for file in self.upLoad]
+                                        self.ext = self.typeFile.lower()
+                                        self.pos = allNames.index(nameFile)
+                                        self.filesReadDf = [] 
+                                        self.segregateDf()
+                                        objDown = downFiles(self.filesReadDf, None, None, self.ext, None)
+                                        objDown.csvPd()                                
+                            if self.upLoad:
+                                if any(allButts):
+                                    ind = allButts.index(True)
+                                    expr = f'{strFunc[1]} {nUploads} do formato {stripe} para o foramto {self.newTypes[ind]}...'
                                     if buttOne:                     
                                         self.index = 0
-                                        self.opt = 0
+                                        self.opt = 0                                                                                
                                     elif buttTwo:
                                         self.index = 0
                                         self.opt = 1
@@ -285,15 +338,27 @@ class main():
                                     elif buttSix: 
                                         self.index = 3
                                         self.opt = 0 
-                                    self.keys = list(self.exts.keys())
-                                    self.key = self.keys[self.index]
-                                    self.values = self.exts[self.key]
-                                    self.ext = self.values[self.opt] 
-                                    self.filesRead = [] 
-                                    self.segregateFiles()
-                                    downFiles(self.filesRead, self.index, self.key, self.ext, self.opt)
+                                    with st.spinner(expr):
+                                        self.place.write('')
+                                        self.keys = list(self.exts.keys())
+                                        self.key = self.keys[self.index]
+                                        self.values = self.exts[self.key]
+                                        self.ext = self.values[self.opt] 
+                                        self.filesRead = [] 
+                                        self.segregateFiles()
+                                        downFiles(self.filesRead, self.index, self.key, self.ext, self.opt)
                         
-    def setSessionState(self, state, mode):
+    def segregateTypes(self):
+        listTypes = list(self.exts.values())
+        for tipo in listTypes:
+            self.newTypes += tipo
+        self.newTypes = [f':red[**{new}**]' for new in self.newTypes]
+    
+    def configImageEmpty(self):
+        with st.container(border=4, key='contZero', gap='small', height="stretch"):
+            st.image(r'C:\Users\ACER\Downloads\image.jpg') 
+    
+    def setSessionState(self, state):
         for disabled in self.disableds:
             if disabled not in st.session_state:
                 st.session_state[disabled] = True 
@@ -301,15 +366,15 @@ class main():
                 st.session_state[disabled] = state
   
     def segregateFiles(self):
-        filesFind = {}        
+        filesFind = {}
         for upLoad in self.upLoad: 
             nameGlobal = upLoad.name
+            nameFile, ext = os.path.splitext(nameGlobal)
             filesFind.setdefault(nameGlobal, 0)
             if nameGlobal in self.files:
                 filesFind[nameGlobal] += 1
             if filesFind[nameGlobal] > 1:
                 continue
-            nameFile, ext = os.path.splitext(nameGlobal)
             newName = f'{nameFile}.{self.ext}'
             dataBytes = upLoad.getvalue()
             dataString = dataBytes.decode('ISO-8859-1')
@@ -319,18 +384,34 @@ class main():
             joinNameRead = (nameFile, readerCsv)
             self.filesRead.append(joinNameRead)
             
+    def segregateDf(self):        
+        for u, upLoad in enumerate(self.upLoad):
+            if u == self.pos:
+                nameGlobal = upLoad.name
+                nameFile, ext = os.path.splitext(nameGlobal)
+                newName = f'{nameFile}_new.{self.ext}'
+                dataBytes = upLoad.getvalue()
+                dataString = dataBytes.decode('ISO-8859-1')
+                self.fileMemory = io.StringIO(dataString)
+                sep = self.detectSep()
+                readerCsv = csv.reader(self.fileMemory, delimiter=sep)
+                joinNameRead = (nameFile, readerCsv)
+                self.filesReadDf.append(joinNameRead)
+                break
+            
     def detectSep(self):
         lines = 1024*10
         sample = self.fileMemory.read(lines)
         self.fileMemory.seek(0)
         dialect = csv.Sniffer().sniff(sample)
         return dialect.delimiter
-            
+
 if __name__ == '__main__':
     with open('configCss.css') as f:
         css = f.read()
     st.markdown(f'<style>{css}</style>', unsafe_allow_html=True) 
     main()
+
 
 
 
