@@ -25,8 +25,6 @@ class messages():
             self.mensResult()
     
     def mensResult(self):
-        self.place = st.empty()
-        self.place.write('')
         if self.nFiles <= 1:
             exprFile = ['arquivo', 'abri-lo']
         else:
@@ -40,14 +38,16 @@ class messages():
         colMens.success(mensStr, icon='✔️')                              
         with open(self.fileTmp, "rb") as file:
             buttDown = colZip.download_button(label='Download',
-                                   data=file,
-                                   file_name=self.fileFinal,
-                                   mime='application/zip', 
-                                   icon=':material/download:', 
-                                   use_container_width=True)
+                                              data=file,
+                                              file_name=self.fileFinal,
+                                              mime='application/zip', 
+                                              icon=':material/download:', 
+                                              use_container_width=True, 
+                                              key='buttDown')
+        st.header('', anchor='buttDown')  
         if buttDown: 
             st.rerun()
-    
+           
     @st.dialog(' ')
     def configTwo(self, str):
         st.markdown(str)  
@@ -299,13 +299,11 @@ class main():
                                                         help=f'{strFunc[0]} {stripe} para {self.newTypes[4]}.')
                                 buttSix = colSix.button(label=f'{stripe} para {self.newTypes[5]}', key='buttSix',
                                                         use_container_width=True, 
-                                                        icon=':material/edit_arrow_up:',  
+                                                        icon=':material/edit_arrow_up:', 
                                                         disabled=st.session_state[self.disableds[5]], 
                                                         help=f'{strFunc[0]} {stripe} para {self.newTypes[5]}.')
-                                self.place = st.empty()
                                 allButts = [buttOne, buttTwo, buttThree, buttFour, buttFive, buttSix]
                                 if self.fileSel:
-                                    self.place.write('')
                                     with st.spinner('Aguarde a exibição do arquivo na tela...'):
                                         nameFile = self.fileSel
                                         allNames = [file.name for file in self.upLoad]
@@ -314,9 +312,7 @@ class main():
                                         self.filesReadDf = [] 
                                         self.segregateDf()
                                         objDown = downFiles(self.filesReadDf, None, None, self.ext, None)
-                                        objDown.csvPd()    
-                                if any(allButts):
-                                    self.place.write('')
+                                        objDown.csvPd()                                        
                             if self.upLoad:
                                 if any(allButts):
                                     ind = allButts.index(True)
@@ -340,7 +336,6 @@ class main():
                                         self.index = 3
                                         self.opt = 0 
                                     with st.spinner(expr):
-                                        self.place.write('')
                                         self.keys = list(self.exts.keys())
                                         self.key = self.keys[self.index]
                                         self.values = self.exts[self.key]
@@ -406,12 +401,13 @@ class main():
         self.fileMemory.seek(0)
         dialect = csv.Sniffer().sniff(sample)
         return dialect.delimiter
-
+        
 if __name__ == '__main__':
     with open('configCss.css') as f:
         css = f.read()
     st.markdown(f'<style>{css}</style>', unsafe_allow_html=True) 
     main()
+
 
 
 
