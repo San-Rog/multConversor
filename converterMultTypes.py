@@ -23,7 +23,6 @@ class messages():
             self.fileFinal = f'zipado_múltiplos_{self.suffix}.zip'
         if None not in args:
             self.mensResult()
-        st.write('em mensagens')
     
     def mensResult(self):
         if self.nFiles <= 1:
@@ -67,9 +66,7 @@ class downFiles():
                 self.csvTsv()
         elif self.index == 3:
             self.csvDocx()     
-        st.write('aqui')
         if self.opt is not None:
-            st.write('agora aqui')
             self.nameZip = f'arquivo_all_{self.ext}.zip'
             self.downZip()
             if os.path.getsize(self.nameZip) > 0:
@@ -411,6 +408,7 @@ if __name__ == '__main__':
         css = f.read()
     st.markdown(f'<style>{css}</style>', unsafe_allow_html=True) 
     main()
+
 
 
 
