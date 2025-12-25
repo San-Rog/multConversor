@@ -337,7 +337,7 @@ class main():
     
     def configImageEmpty(self):
         with st.container(border=4, key='contZero', gap='small', height="stretch"):
-            st.image('image.jpg') 
+            st.image('imagem.jpg') 
     
     def setSessionState(self, state):
         for disabled in self.disableds:
@@ -377,6 +377,7 @@ if __name__ == '__main__':
         css = f.read()
     st.markdown(f'<style>{css}</style>', unsafe_allow_html=True) 
     main()
+
 
 
 
