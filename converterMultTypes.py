@@ -44,10 +44,7 @@ class messages():
                                               icon=':material/download:', 
                                               use_container_width=True, 
                                               key='buttDown')
-        st.header('', anchor='buttDown')  
-        if buttDown: 
-            st.rerun()
-           
+     
     @st.dialog(' ')
     def configTwo(self, str):
         st.markdown(str)  
@@ -268,8 +265,6 @@ class main():
                                     opts.insert(0, '')
                                 else:
                                     opts = []
-                                self.fileSel = st.selectbox(titleSel, options=opts, key='files', 
-                                                            index=0)
                                 colOne, colTwo, colThree = st.columns(spec=3, width='stretch')
                                 buttOne = colOne.button(label=f'{stripe} para {self.newTypes[0]}', key='buttOne',
                                                         use_container_width=True, 
@@ -303,16 +298,6 @@ class main():
                                                         disabled=st.session_state[self.disableds[5]], 
                                                         help=f'{strFunc[0]} {stripe} para {self.newTypes[5]}.')
                                 allButts = [buttOne, buttTwo, buttThree, buttFour, buttFive, buttSix]
-                                if self.fileSel:
-                                    with st.spinner('Aguarde a exibição do arquivo na tela...'):
-                                        nameFile = self.fileSel
-                                        allNames = [file.name for file in self.upLoad]
-                                        self.ext = self.typeFile.lower()
-                                        self.pos = allNames.index(nameFile)
-                                        self.filesReadDf = [] 
-                                        self.segregateDf()
-                                        objDown = downFiles(self.filesReadDf, None, None, self.ext, None)
-                                        objDown.csvPd()                                        
                             if self.upLoad:
                                 if any(allButts):
                                     ind = allButts.index(True)
@@ -352,7 +337,7 @@ class main():
     
     def configImageEmpty(self):
         with st.container(border=4, key='contZero', gap='small', height="stretch"):
-            st.image(r'C:\Users\ACER\Downloads\image.jpg') 
+            st.image('image.jpg') 
     
     def setSessionState(self, state):
         for disabled in self.disableds:
@@ -380,33 +365,19 @@ class main():
             joinNameRead = (nameFile, readerCsv)
             self.filesRead.append(joinNameRead)
             
-    def segregateDf(self):        
-        for u, upLoad in enumerate(self.upLoad):
-            if u == self.pos:
-                nameGlobal = upLoad.name
-                nameFile, ext = os.path.splitext(nameGlobal)
-                newName = f'{nameFile}_new.{self.ext}'
-                dataBytes = upLoad.getvalue()
-                dataString = dataBytes.decode('ISO-8859-1')
-                self.fileMemory = io.StringIO(dataString)
-                sep = self.detectSep()
-                readerCsv = csv.reader(self.fileMemory, delimiter=sep)
-                joinNameRead = (nameFile, readerCsv)
-                self.filesReadDf.append(joinNameRead)
-                break
-            
     def detectSep(self):
         lines = 1024*10
         sample = self.fileMemory.read(lines)
         self.fileMemory.seek(0)
         dialect = csv.Sniffer().sniff(sample)
         return dialect.delimiter
-        
+            
 if __name__ == '__main__':
     with open('configCss.css') as f:
         css = f.read()
     st.markdown(f'<style>{css}</style>', unsafe_allow_html=True) 
     main()
+
 
 
 
