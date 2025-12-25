@@ -408,22 +408,3 @@ if __name__ == '__main__':
         css = f.read()
     st.markdown(f'<style>{css}</style>', unsafe_allow_html=True) 
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
