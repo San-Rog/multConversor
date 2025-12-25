@@ -297,7 +297,7 @@ class main():
                                                         help=f'{strFunc[0]} {stripe} para {self.newTypes[4]}.')
                                 buttSix = colSix.button(label=f'{stripe} para {self.newTypes[5]}', key='buttSix',
                                                         use_container_width=True, 
-                                                        icon=':material/edit_arrow_up:', 
+                                                        icon=':material/edit_arrow_up:',  
                                                         disabled=st.session_state[self.disableds[5]], 
                                                         help=f'{strFunc[0]} {stripe} para {self.newTypes[5]}.')
                                 self.place = st.empty()
@@ -408,6 +408,7 @@ if __name__ == '__main__':
         css = f.read()
     st.markdown(f'<style>{css}</style>', unsafe_allow_html=True) 
     main()
+
 
 
 
