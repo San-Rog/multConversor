@@ -30,14 +30,14 @@ class messages():
         else:
             exprFile = ['arquivos', 'abri-los']
         if self.suffix in ['tsv']:
-            mensStr = f':blue[**{self.fileFinal}**] contendo ***{self.nFiles}*** {exprFile[0]}. Clique no botão 👉.\n' \
+            mensStr = f':blue[**{self.fileFinal}**] com ***{self.nFiles} {exprFile[0]} não repetidos***. Download 👉.\n' \
                       f'(Use **Bloco de Notas** ou aplicativo similar para {exprFile[1]}.)'
         else:
-            mensStr = f':blue[**{self.fileFinal}**] com ***{self.nFiles}*** {exprFile[0]}. Clique no botão 👉.'
-        colMens, colZip = st.columns([17, 5], width='stretch', vertical_alignment='center')
+            mensStr = f':blue[**{self.fileFinal}**] com ***{self.nFiles} {exprFile[0]} não repetidos***. Download 👉.'
+        colMens, colZip = st.columns([19, 3], width='stretch', vertical_alignment='center')
         colMens.success(mensStr, icon='✔️')                              
         with open(self.fileTmp, "rb") as file:
-            buttDown = colZip.download_button(label='Download',
+            buttDown = colZip.download_button(label='',
                                               data=file,
                                               file_name=self.fileFinal,
                                               mime='application/zip', 
@@ -216,14 +216,24 @@ class downFiles():
 class main():
     def __init__(self):          
         st.set_page_config(initial_sidebar_state="collapsed", layout="wide")
-        self.typeExt = sorted(['CSV', 'XLS', 'XLSX']) 
+        self.typeExt = sorted(['CSV', 'XLS', 'XLSX'])
+        self.typeExt.insert(0, '')
         colType, colUpload = st.columns([12, 17], width='stretch')
         self.keyUp = 'zero'
-        with colType:            
+        with colType:
             with st.container(border=4, key='contType', gap='small', height="stretch"):
-                self.typeFile = st.selectbox('Selecione o tipo de arquivo', self.typeExt, key='typeFile') 
+                self.typeFile = st.selectbox('Selecione o tipo de arquivo', self.typeExt, 
+                                             key='typeFile', 
+                                             help='Selecionar o tipo desejado. Para reiniciar, escolher a linha em branco.') 
+                if not self.typeFile: 
+                    upDisabled = True
+                else:
+                    upDisabled = False
                 self.upLoad = st.file_uploader(f'Escolha dois ou mais arquivos {self.typeFile}.', 
-                                               type=self.typeFile, accept_multiple_files=True, key=self.keyUp)    
+                                               type=self.typeFile, accept_multiple_files=True, key=self.keyUp, 
+                                               disabled=upDisabled, 
+                                               help='É integrado de todos os arquivos selecionados, mesmo que se repitam.' \
+                                                    'No momento do download, contudo, serão tratados como se não se repetissem.')    
         with colUpload:  
             try:
                 self.files = list(set([file.name for file in self.upLoad]))
@@ -232,29 +242,33 @@ class main():
             if not self.typeFile:
                 self.configImageEmpty()
             if self.typeFile:
-                with st.container(border=None, key='contUpload', gap='small', height="stretch"):
+                with st.container(border=4, key='contUpload', gap='small', height='stretch'):
                     nUploads = len(self.upLoad)
-                    self.disableds = ['disabled' + str(w) for w in range(6)]
-                    if nUploads == 0:
-                        self.setSessionState(True)
-                    else:
-                        self.setSessionState(False)
                     if not self.typeFile:
                         self.configImageEmpty()                           
                     else:
-                        if not self.typeFile == self.typeExt[0]: 
+                        if not self.typeFile == self.typeExt[1]: 
                             self.configImageEmpty()
                         else:
                             self.exts = {'openpyxl': ['xls', 'xlsx', 'html'], 
                                          'odf': ['ods'], 
                                          'tsv': ['tsv'], 
-                                         'doc': ['docx']}                        
+                                         'doc': ['docx'], 
+                                         'json': ['json'], 
+                                         'xlm': ['xlm'],
+                                         'pdf': ['pdf']
+                                         }                        
                             self.newTypes = []
                             self.segregateTypes()
+                            self.disableds = ['disabled' + str(w) for w in range(len(self.newTypes))]
+                            if nUploads == 0:
+                                self.setSessionState(True)
+                            else:
+                                self.setSessionState(False)
                             typeLow = self.typeFile.lower()
                             strFunc = ['Converter um ou mais arquivos', 'Convertendo']
                             stripe = f':red[**{self.typeFile.lower()}**]'
-                            with st.container(border=4, key='contOne', gap='small', height="stretch"):
+                            with st.container(border=None, key='contOne', gap='small', height='stretch'):
                                 nFiles = len(self.files)
                                 if nFiles <= 0:
                                     titleSel = f'Arquivo selecionado ({nFiles})'
@@ -265,6 +279,7 @@ class main():
                                     opts.insert(0, '')
                                 else:
                                     opts = []
+                                #st.write(len(self.upLoad), len(self.files))
                                 colOne, colTwo, colThree = st.columns(spec=3, width='stretch')
                                 buttOne = colOne.button(label=f'{stripe} para {self.newTypes[0]}', key='buttOne',
                                                         use_container_width=True, 
@@ -297,37 +312,53 @@ class main():
                                                         icon=':material/edit_arrow_up:', 
                                                         disabled=st.session_state[self.disableds[5]], 
                                                         help=f'{strFunc[0]} {stripe} para {self.newTypes[5]}.')
+                                colSeven, colEight, colNine = st.columns(spec=3, width='stretch')
+                                buttSeven = colSeven.button(label=f'{stripe} para {self.newTypes[6]}', key='buttSeven',
+                                                        use_container_width=True, 
+                                                        icon=':material/edit_arrow_up:', 
+                                                        disabled=st.session_state[self.disableds[6]], 
+                                                        help=f'{strFunc[0]} {stripe} para {self.newTypes[6]}.')
+                                buttEight = colEight.button(label=f'{stripe} para {self.newTypes[7]}', key='buttEight',
+                                                        use_container_width=True, 
+                                                        icon=':material/edit_arrow_up:', 
+                                                        disabled=st.session_state[self.disableds[7]], 
+                                                        help=f'{strFunc[0]} {stripe} para {self.newTypes[7]}.')
+                                buttNine = colNine.button(label=f'{stripe} para {self.newTypes[8]}', key='buttNine',
+                                                        use_container_width=True, 
+                                                        icon=':material/edit_arrow_up:', 
+                                                        disabled=st.session_state[self.disableds[8]], 
+                                                        help=f'{strFunc[0]} {stripe} para {self.newTypes[8]}.')
                                 allButts = [buttOne, buttTwo, buttThree, buttFour, buttFive, buttSix]
-                            if self.upLoad:
-                                if any(allButts):
-                                    ind = allButts.index(True)
-                                    expr = f'{strFunc[1]} {nUploads} do formato {stripe} para o foramto {self.newTypes[ind]}...'
-                                    if buttOne:                     
-                                        self.index = 0
-                                        self.opt = 0                                                                                
-                                    elif buttTwo:
-                                        self.index = 0
-                                        self.opt = 1
-                                    elif buttThree:
-                                        self.index = 0
-                                        self.opt = 2                        
-                                    elif buttFour:
-                                        self.index = 1
-                                        self.opt = 0 
-                                    elif buttFive: 
-                                        self.index = 2
-                                        self.opt = 0 
-                                    elif buttSix: 
-                                        self.index = 3
-                                        self.opt = 0 
-                                    with st.spinner(expr):
-                                        self.keys = list(self.exts.keys())
-                                        self.key = self.keys[self.index]
-                                        self.values = self.exts[self.key]
-                                        self.ext = self.values[self.opt] 
-                                        self.filesRead = [] 
-                                        self.segregateFiles()
-                                        downFiles(self.filesRead, self.index, self.key, self.ext, self.opt)
+                if self.upLoad:
+                    if any(allButts):
+                        ind = allButts.index(True)
+                        expr = f'{strFunc[1]} {nUploads} do formato {stripe} para o foramto {self.newTypes[ind]}...'
+                        if buttOne:                     
+                            self.index = 0
+                            self.opt = 0                                                                                
+                        elif buttTwo:
+                            self.index = 0
+                            self.opt = 1
+                        elif buttThree:
+                            self.index = 0
+                            self.opt = 2                        
+                        elif buttFour:
+                            self.index = 1
+                            self.opt = 0 
+                        elif buttFive: 
+                            self.index = 2
+                            self.opt = 0 
+                        elif buttSix: 
+                            self.index = 3
+                        self.opt = 0 
+                        with st.spinner(expr):
+                            self.keys = list(self.exts.keys())
+                            self.key = self.keys[self.index]
+                            self.values = self.exts[self.key]
+                            self.ext = self.values[self.opt] 
+                            self.filesRead = [] 
+                            self.segregateFiles()
+                            downFiles(self.filesRead, self.index, self.key, self.ext, self.opt)
                         
     def segregateTypes(self):
         listTypes = list(self.exts.values())
