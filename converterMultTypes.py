@@ -25,6 +25,8 @@ class messages():
             self.mensResult()
     
     def mensResult(self):
+        self.place = st.empty()
+        self.place.write('')
         if self.nFiles <= 1:
             exprFile = ['arquivo', 'abri-lo']
         else:
@@ -410,6 +412,7 @@ if __name__ == '__main__':
         css = f.read()
     st.markdown(f'<style>{css}</style>', unsafe_allow_html=True) 
     main()
+
 
 
 
