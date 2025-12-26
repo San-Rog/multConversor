@@ -1,5 +1,5 @@
 ::selection {
-  background: yellow;
+  background: #87CEEB;
 }
 
 div[data-testid="column"]:nth-child(1) {
@@ -25,7 +25,7 @@ ul[data-testid="stSelectboxVirtualDropdown"] li[aria-selected="true"] {
 
 .element-container:nth-of-type(1) button{
 	background-color: green;
-	height: 100px;
+	height: 65px;
 	padding-top: 10px; 
     padding-bottom: 10px;
 }
@@ -57,6 +57,7 @@ ul[data-testid="stSelectboxVirtualDropdown"] li[aria-selected="true"] {
 	background-color: #FFFFF0;
 	text-align: center; 
 }
+
 
 
 
