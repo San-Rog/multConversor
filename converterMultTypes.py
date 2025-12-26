@@ -249,13 +249,16 @@ class main():
                     else:
                         if not self.typeFile == self.typeExt[1]: 
                             self.configImageEmpty()
-                        else:
+                        elif self.typeFile == self.typeExt[1]:
                             self.exts = {'openpyxl': ['xls', 'xlsx', 'html'], 
                                          'odf': ['ods'], 
                                          'tsv': ['tsv'], 
                                          'doc': ['docx'], 
-                                         'json': ['json'], 
-                                         'xlm': ['xlm'],
+                                         'yaml': ['yaml'], 
+                                         'json': ['json'],
+                                         'xhtml': ['xhtml'],
+                                         'toml': ['toml'],
+                                         'txt': ['txt'], 
                                          'pdf': ['pdf']
                                          }                        
                             self.newTypes = []
@@ -266,8 +269,8 @@ class main():
                             else:
                                 self.setSessionState(False)
                             typeLow = self.typeFile.lower()
-                            strFunc = ['Converter um ou mais arquivos', 'Convertendo']
-                            stripe = f':red[**{self.typeFile.lower()}**]'
+                            self.strFunc = ['Converter um ou mais arquivos', 'Convertendo']
+                            self.stripe = f':red[**{self.typeFile.lower()}**]'
                             with st.container(border=None, key='contOne', gap='small', height='stretch'):
                                 nFiles = len(self.files)
                                 if nFiles <= 0:
@@ -280,86 +283,90 @@ class main():
                                 else:
                                     opts = []
                                 #st.write(len(self.upLoad), len(self.files))
+                                buttOne, buttTwo, buttThree, buttFour, buttFive, buttSix = ['' for i in range(6)]
+                                buttSeven, buttEight, buttNine, buttTen, buttEleven, buttTwelve = ['' for i in range(6)]
+                                self.allButtons = [buttOne, buttTwo, buttThree, buttFour, buttFive, buttSix, 
+                                                   buttSeven, buttEight, buttNine, buttTen, buttEleven, buttTwelve]
                                 colOne, colTwo, colThree = st.columns(spec=3, width='stretch')
-                                buttOne = colOne.button(label=f'{stripe} para {self.newTypes[0]}', key='buttOne',
-                                                        use_container_width=True, 
-                                                        icon=':material/sync_alt:', 
-                                                        disabled=st.session_state[self.disableds[0]],
-                                                        help=f'{strFunc[0]} {stripe} para {self.newTypes[0]}.') 
-                                buttTwo = colTwo.button(label=f'{stripe} para {self.newTypes[1]}', key='buttTwo',
-                                                        use_container_width=True, 
-                                                        icon=':material/swap_horiz:', 
-                                                        disabled=st.session_state[self.disableds[1]], 
-                                                        help=f'{strFunc[0]} {stripe} para {self.newTypes[1]}.')
-                                buttThree = colThree.button(label=f'{stripe} para {self.newTypes[2]}', key='buttThree',
-                                                        use_container_width=True, 
-                                                        icon=':material/table_convert:', 
-                                                        disabled=st.session_state[self.disableds[2]], 
-                                                        help=f'{strFunc[0]} {stripe} para {self.newTypes[2]}.') 
                                 colFour, colFive, colSix = st.columns(spec=3, width='stretch')
-                                buttFour = colFour.button(label=f'{stripe} para {self.newTypes[3]}', key='buttFour',
-                                                        use_container_width=True, 
-                                                        icon=':material/transform:', 
-                                                        disabled=st.session_state[self.disableds[3]], 
-                                                        help=f'{strFunc[0]} {stripe} para {self.newTypes[3]}.') 
-                                buttFive = colFive.button(label=f'{stripe} para {self.newTypes[4]}', key='buttFive',
-                                                        use_container_width=True, 
-                                                        icon=':material/convert_to_text:', 
-                                                        disabled=st.session_state[self.disableds[4]], 
-                                                        help=f'{strFunc[0]} {stripe} para {self.newTypes[4]}.')
-                                buttSix = colSix.button(label=f'{stripe} para {self.newTypes[5]}', key='buttSix',
-                                                        use_container_width=True, 
-                                                        icon=':material/edit_arrow_up:', 
-                                                        disabled=st.session_state[self.disableds[5]], 
-                                                        help=f'{strFunc[0]} {stripe} para {self.newTypes[5]}.')
                                 colSeven, colEight, colNine = st.columns(spec=3, width='stretch')
-                                buttSeven = colSeven.button(label=f'{stripe} para {self.newTypes[6]}', key='buttSeven',
-                                                        use_container_width=True, 
-                                                        icon=':material/edit_arrow_up:', 
-                                                        disabled=st.session_state[self.disableds[6]], 
-                                                        help=f'{strFunc[0]} {stripe} para {self.newTypes[6]}.')
-                                buttEight = colEight.button(label=f'{stripe} para {self.newTypes[7]}', key='buttEight',
-                                                        use_container_width=True, 
-                                                        icon=':material/edit_arrow_up:', 
-                                                        disabled=st.session_state[self.disableds[7]], 
-                                                        help=f'{strFunc[0]} {stripe} para {self.newTypes[7]}.')
-                                buttNine = colNine.button(label=f'{stripe} para {self.newTypes[8]}', key='buttNine',
-                                                        use_container_width=True, 
-                                                        icon=':material/edit_arrow_up:', 
-                                                        disabled=st.session_state[self.disableds[8]], 
-                                                        help=f'{strFunc[0]} {stripe} para {self.newTypes[8]}.')
-                                allButts = [buttOne, buttTwo, buttThree, buttFour, buttFive, buttSix]
+                                colTen, colEleven, colTwelve = st.columns(spec=3, width='stretch')
+                                self.colsButts = {0: [0, colOne, ':material/sync_alt:'], 1: [1, colTwo, ':material/swap_horiz:'], 
+                                                  2: [2, colThree, ':material/table_convert:'], 3: [3, colFour, ':material/transform:'], 
+                                                  4: [4, colFive, ':material/convert_to_text:'], 5: [5, colSix, ':material/edit_arrow_up:'], 
+                                                  6: [6, colSeven, ':material/edit_arrow_up:'], 7: [7, colEight, ':material/edit_arrow_up:'], 
+                                                  8: [8, colNine, ':material/edit_arrow_up:'], 9: [9, colTen, ':material/edit_arrow_up:'], 
+                                                  10: [10, colEleven, ':material/edit_arrow_up:'], 11: [11, colTwelve, ':material/edit_arrow_up:']}
+                                buttOne = self.setButtons(self.colsButts[0])
+                                buttTwo = self.setButtons(self.colsButts[1])
+                                buttThree = self.setButtons(self.colsButts[2]) 
+                                buttFour = self.setButtons(self.colsButts[3])
+                                buttFive = self.setButtons(self.colsButts[4])
+                                buttSix = self.setButtons(self.colsButts[5])                                
+                                buttSeven = self.setButtons(self.colsButts[6]) 
+                                buttEight = self.setButtons(self.colsButts[7])
+                                buttNine = self.setButtons(self.colsButts[8])
+                                buttTen = self.setButtons(self.colsButts[9])
+                                buttEleven = self.setButtons(self.colsButts[10])
+                                buttTwelve = self.setButtons(self.colsButts[11])                                
                 if self.upLoad:
-                    if any(allButts):
-                        ind = allButts.index(True)
-                        expr = f'{strFunc[1]} {nUploads} do formato {stripe} para o foramto {self.newTypes[ind]}...'
-                        if buttOne:                     
+                    if any(self.allButtons):
+                        ind = self.allButtons.index(True)
+                        expr = f'{self.strFunc[1]} {nUploads} do formato {self.stripe} para o foramto {self.newTypes[ind]}...'
+                        if self.allButtons[0]:                     
                             self.index = 0
                             self.opt = 0                                                                                
-                        elif buttTwo:
+                        elif self.allButtons[1]:
                             self.index = 0
                             self.opt = 1
-                        elif buttThree:
+                        elif self.allButtons[2]:
                             self.index = 0
                             self.opt = 2                        
-                        elif buttFour:
+                        elif self.allButtons[3]:
                             self.index = 1
                             self.opt = 0 
-                        elif buttFive: 
+                        elif self.allButtons[4]: 
                             self.index = 2
                             self.opt = 0 
-                        elif buttSix: 
+                        elif self.allButtons[5]: 
                             self.index = 3
-                        self.opt = 0 
-                        with st.spinner(expr):
-                            self.keys = list(self.exts.keys())
-                            self.key = self.keys[self.index]
-                            self.values = self.exts[self.key]
-                            self.ext = self.values[self.opt] 
-                            self.filesRead = [] 
-                            self.segregateFiles()
-                            downFiles(self.filesRead, self.index, self.key, self.ext, self.opt)
+                            self.opt = 0 
+                        elif self.allButtons[6]:
+                            pass
+                        elif self.allButtons[7]:
+                            pass
+                        elif self.allButtons[8]:
+                            pass
+                        elif self.allButtons[9]:
+                            pass
+                        elif self.allButtons[10]:
+                            pass
+                        elif self.allButtons[11]:
+                            pass
+                        try:
+                            with st.spinner(expr):
+                                self.keys = list(self.exts.keys())
+                                self.key = self.keys[self.index]
+                                self.values = self.exts[self.key]
+                                self.ext = self.values[self.opt] 
+                                self.filesRead = [] 
+                                self.segregateFiles()
+                                downFiles(self.filesRead, self.index, self.key, self.ext, self.opt)
+                        except:
+                            pass
                         
+    def setButtons(self, elems):
+        #[0, colOne, ':material/sync_alt:']
+        n = elems[0]
+        col = elems[1]
+        ico = elems[2]
+        butt = f'butt{n}'
+        self.allButtons[n] = col.button(label=f'{self.stripe} para {self.newTypes[n]}', key=butt,
+                                          use_container_width=True, 
+                                          icon=ico, 
+                                          disabled=st.session_state[self.disableds[n]],
+                                          help=f'{self.strFunc[0]} {self.stripe} para {self.newTypes[n]}.') 
+    
     def segregateTypes(self):
         listTypes = list(self.exts.values())
         for tipo in listTypes:
@@ -404,6 +411,7 @@ class main():
         return dialect.delimiter
             
 if __name__ == '__main__':
+    #formatos adicionais: yaml, json, xhtml, toml
     with open('configCss.css') as f:
         css = f.read()
     st.markdown(f'<style>{css}</style>', unsafe_allow_html=True) 
