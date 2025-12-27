@@ -407,7 +407,7 @@ class main():
     def configImageEmpty(self, border):
         with st.container(border=border, key='contZero', gap='small', height='stretch'):
             st.markdown(f'0️⃣  seleção de tipo e/ou arquivo', text_alignment='center') 
-            st.image(''zero.jpg', use_container_width='stretch') 
+            st.image('zero.jpg', use_container_width='stretch') 
     
     def setSessionState(self, state):
         for disabled in self.disableds:
