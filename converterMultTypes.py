@@ -310,25 +310,23 @@ class main():
                                 buttTen = self.setButtons(self.colsButts[9])
                                 buttEleven = self.setButtons(self.colsButts[10])
                                 buttTwelve = self.setButtons(self.colsButts[11])                                
-                            if nUploads > 0:
-                                nNotRep = len(self.files)
-                                nRep = nUploads - nNotRep                                
-                                exprLoad = self.singPlural(nUploads, 'escolhido', 'escolhidos')
-                                exprNotRep = self.singPlural(nNotRep, 'não repetido', 'não repetidos')
-                                exprRep = self.singPlural(nRep, 'repetido', 'repetidos')
-                                with st.container(border=4, key='contRepNo', gap='small', height='stretch', 
-                                                  vertical_alignment='center'):
-                                    colTotal, colNotRep, colRep = st.columns(spec=3, width='stretch', 
-                                                                             vertical_alignment='center')
-                                    with colTotal.popover(f'Informações {nUploads}', icon='ℹ️', use_container_width=True): 
-                                        self.elem = st.selectbox(exprLoad, self.files)
-                                        if self.elem:
-                                            self.formatSelect()  
-                                    with colNotRep.popover(f'{nNotRep} {exprNotRep}', icon='👍', use_container_width=True):
-                                        st.text('mmmmmmmmmmm', width="content")                                        
-                                    with colRep.popover(f'{nRep} {exprRep}', icon='❌', use_container_width=True):
-                                        st.text('mmmmmmmmmmm', width="content")                                    
                 if self.upLoad:
+                    nNotRep = len(self.files)
+                    nRep = nUploads - nNotRep                                
+                    exprLoad = self.singPlural(nUploads, 'escolhido', 'escolhidos')
+                    exprNotRep = self.singPlural(nNotRep, 'não repetido', 'não repetidos')
+                    exprRep = self.singPlural(nRep, 'repetido', 'repetidos')
+                    with st.container(border=2, key='contRepNo', gap='small', height='stretch', 
+                                      vertical_alignment='center'):
+                        colTotal, colNotRep, colRep = st.columns(spec=3, width='stretch', vertical_alignment='center')
+                        with colTotal.popover(f'Informações {nUploads}', icon='ℹ️', use_container_width=True): 
+                            self.elem = st.selectbox(exprLoad, self.files)
+                            if self.elem:
+                                self.formatSelect()  
+                        with colNotRep.popover(f'{nNotRep} {exprNotRep}', icon='👍', use_container_width=True):
+                            st.text('mmmmmmmmmmm', width="content")                                        
+                        with colRep.popover(f'{nRep} {exprRep}', icon='❌', use_container_width=True):
+                            st.text('mmmmmmmmmmm', width="content")  
                     if any(self.allButtons):
                         ind = self.allButtons.index(True)
                         expr = f'{self.strFunc[1]} {nUploads} do formato {self.stripe} para o foramto {self.newTypes[ind]}...'
@@ -409,7 +407,7 @@ class main():
     def configImageEmpty(self, border):
         with st.container(border=border, key='contZero', gap='small', height='stretch'):
             st.markdown(f'0️⃣  seleção de tipo e/ou arquivo', text_alignment='center') 
-            st.image('zero.jpg', use_container_width='stretch') 
+            st.image(''zero.jpg', use_container_width='stretch') 
     
     def setSessionState(self, state):
         for disabled in self.disableds:
